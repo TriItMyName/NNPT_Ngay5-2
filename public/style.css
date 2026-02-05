@@ -1,0 +1,26 @@
+body{ background:#f5f6fa }
+.table-hover tbody tr:hover{ cursor:pointer }
+
+.table-responsive{ box-shadow: 0 6px 18px rgba(16,24,40,.06); }
+
+.img-thumb{
+    width:50px;
+    height:50px;
+    object-fit:cover;
+    border-radius:6px;
+    background:#eee;
+}
+
+.tooltip-desc{
+    position:absolute;
+    background:rgba(33,37,41,.95);
+    color:#fff;
+    padding:8px;
+    border-radius:6px;
+    max-width:320px;
+    font-size:13px;
+    display:none;
+    z-index:999;
+    box-shadow: 0 10px 24px rgba(0,0,0,.22);
+    pointer-events:none;
+}

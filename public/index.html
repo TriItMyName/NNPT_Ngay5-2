@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Node Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="p-4">
+
+<div class="container">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+	<h2 class="m-0">NodeJS Products Dashboard</h2>
+	<small class="text-secondary">Hover a row to see description • Click to view detail</small>
+</div>
+
+<div class="d-flex gap-2 mb-3 flex-wrap">
+<input id="searchInput" class="form-control" style="max-width:320px" placeholder="Search by title...">
+
+<select id="pageSize" class="form-select w-auto">
+<option value="5">5</option>
+<option value="10" selected>10</option>
+<option value="20">20</option>
+</select>
+
+<button class="btn btn-success" onclick="exportCSV()">Export CSV</button>
+<button class="btn btn-primary" onclick="openCreate()">Create</button>
+</div>
+
+<div class="table-responsive rounded-3 border bg-white">
+<table class="table table-bordered table-hover align-middle mb-0">
+<thead class="table-dark sticky-top">
+<tr>
+<th style="width:80px">ID</th>
+<th>
+	<div class="d-flex align-items-center justify-content-between gap-2">
+		<span>Title</span>
+		<button id="sortTitleBtn" class="btn btn-sm btn-outline-light" type="button" onclick="setSort('title')">Sort</button>
+	</div>
+</th>
+<th style="width:160px">
+	<div class="d-flex align-items-center justify-content-between gap-2">
+		<span>Price</span>
+		<button id="sortPriceBtn" class="btn btn-sm btn-outline-light" type="button" onclick="setSort('price')">Sort</button>
+	</div>
+</th>
+<th>Category</th>
+<th style="width:90px">Image</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+
+<ul class="pagination" id="pagination"></ul>
+</div>
+
+<div class="tooltip-desc" id="tooltip"></div>
+
+<!-- DETAIL MODAL -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+	<div class="modal-dialog modal-lg modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Product Detail</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row g-3">
+					<div class="col-md-4">
+						<div class="border rounded-3 p-2 bg-light">
+							<img id="detailImagePreview" class="w-100 rounded-3" alt="preview" />
+						</div>
+						<div class="mt-2 small text-secondary">ID: <span id="detailId"></span></div>
+						<div class="mt-1 small text-secondary">Category: <span id="detailCategoryName"></span></div>
+					</div>
+					<div class="col-md-8">
+						<label class="form-label">Title</label>
+						<input id="editTitle" class="form-control mb-2">
+
+						<div class="row g-2">
+							<div class="col-sm-6">
+								<label class="form-label">Price</label>
+								<input id="editPrice" type="number" class="form-control mb-2">
+							</div>
+							<div class="col-sm-6">
+								<label class="form-label">Category ID</label>
+								<input id="editCategoryId" type="number" class="form-control mb-2" value="1">
+							</div>
+						</div>
+
+						<label class="form-label">Image URL</label>
+						<input id="editImageUrl" class="form-control mb-2" placeholder="https://...">
+
+						<label class="form-label">Description</label>
+						<textarea id="editDesc" class="form-control" rows="4"></textarea>
+					</div>
+				</div>
+
+				<div id="detailError" class="alert alert-danger mt-3 d-none" role="alert"></div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+				<button class="btn btn-warning" onclick="updateItem()">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- CREATE MODAL -->
+<div class="modal fade" id="createModal" tabindex="-1">
+	<div class="modal-dialog modal-lg modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Create Product</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row g-3">
+					<div class="col-md-8">
+						<label class="form-label">Title</label>
+						<input id="newTitle" class="form-control mb-2" placeholder="Product title">
+
+						<div class="row g-2">
+							<div class="col-sm-6">
+								<label class="form-label">Price</label>
+								<input id="newPrice" type="number" class="form-control mb-2" placeholder="0">
+							</div>
+							<div class="col-sm-6">
+								<label class="form-label">Category ID</label>
+								<input id="newCategoryId" type="number" class="form-control mb-2" value="1">
+							</div>
+						</div>
+
+						<label class="form-label">Image URL</label>
+						<input id="newImageUrl" class="form-control mb-2" placeholder="https://...">
+
+						<label class="form-label">Description</label>
+						<textarea id="newDesc" class="form-control" rows="4" placeholder="Description..."></textarea>
+					</div>
+					<div class="col-md-4">
+						<div class="border rounded-3 p-2 bg-light">
+							<img id="createImagePreview" class="w-100 rounded-3" alt="preview" />
+						</div>
+						<div class="small text-secondary mt-2">Tip: paste an image URL to preview.</div>
+					</div>
+				</div>
+
+				<div id="createError" class="alert alert-danger mt-3 d-none" role="alert"></div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button class="btn btn-success" onclick="createItem()">Create</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
